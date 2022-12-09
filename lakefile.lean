@@ -10,6 +10,7 @@ lean_lib Day2
 lean_lib Day3
 lean_lib Day4
 lean_lib Day5
+lean_lib Day6
 
 
 @[defaultTarget]
