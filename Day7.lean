@@ -6,13 +6,13 @@ inductive Directory where
   | directory : String → List Directory → (size : Nat := 0) → Directory
 
 open Directory in
-partial def dir2string (level : String :="") : Directory → String
+partial def dir2String (level : String :="") : Directory → String
   | file size name => s!"\n{level}- {name} (file, size={size})"
   | directory name contents size => 
-    s!"\n{level}- {name} (dir, size={size}) {contents.map (fun c => (dir2string (level++"  ") c) )}"
+    s!"\n{level}- {name} (dir, size={size}) {contents.map (fun c => (dir2String (level++"  ") c) )}"
 
 instance : ToString Directory where
-  toString := dir2string 
+  toString := dir2String 
 
 open Directory in
 def fs := directory "/" [
@@ -50,8 +50,6 @@ partial def getSizes : Directory → Nat × Directory
   let totalSize := temp.foldl (fun sum ⟨ size, _ ⟩  => sum + size) 0
   (totalSize, directory name newDirs totalSize)
 
-#eval getSizes fs
-
 open Directory in
 partial def sumSmaller : Directory → Nat
 | file _ _ => 0
@@ -60,8 +58,6 @@ partial def sumSmaller : Directory → Nat
     contents.foldl (fun sum c => sum + sumSmaller c) size
   else
     contents.foldl (fun sum c => sum + sumSmaller c) 0
-  
-#eval sumSmaller (getSizes fs).snd
 
 partial def readLines (stream : IO.FS.Stream) : IO (List String) := do 
   let line ← stream.getLine
@@ -71,14 +67,81 @@ partial def readLines (stream : IO.FS.Stream) : IO (List String) := do
     let rest ← readLines stream
     return [line.dropRightWhile Char.isWhitespace] ++ rest
 
+open Directory in
+def parseInput : (List String) → Directory := fun lines =>
+  let rec helper (currDir: Directory) (path: List Directory) : List String → Directory
+  | [] => currDir
+  | line::lines =>
+    let parts := line.splitOn " "
+    match parts[0]? with
+    | none => currDir
+    | some "$" =>
+      match parts[1]? with
+      | none => currDir
+      | some "cd" => 
+        match parts[2]? with
+        | none => currDir
+        | some ".." => 
+          match path with
+          | [] => currDir
+          | _ :: [] => currDir
+          | _ :: parent :: rest => helper parent ([parent] ++ rest) lines
+        | some dirName => 
+          let newDir := directory dirName []
+          match currDir with
+          | directory name contents size =>
+            let currDir' := directory name ([newDir] ++ contents) size
+            if contents.length > 0 then
+              let newPath := [newDir] ++ [currDir'] ++ contents.tail!
+              helper newDir newPath lines
+            else
+              let newPath := [newDir] ++ [currDir']
+              helper newDir newPath lines
+          | _ => currDir
+      | some "ls" => helper currDir path lines
+      | _ => currDir
+    | some "dir" =>
+      match parts[1]? with
+      | none => currDir
+      | some dirName => 
+        match currDir with
+        | file _ _ => currDir
+        | directory name contents size =>
+          let currDir' := directory name ([directory dirName []] ++ contents) size
+          if contents.length > 0 then
+            let newPath := [currDir'] ++ contents.tail!
+            helper currDir' newPath lines
+          else
+            let newPath := [currDir']
+            helper currDir' newPath lines
+    | some fSize => 
+      match parts[1]? with 
+      | none => currDir
+      | some fName => 
+        match currDir with
+        | file _ _ => currDir
+        | directory name contents size =>
+          let currDir' := directory name ([file fSize.toNat! fName] ++ contents) size
+          if contents.length > 0 then
+            let newPath := [currDir'] ++ contents.tail!
+            helper currDir' newPath lines
+          else
+            let newPath := [currDir']
+            helper currDir' newPath lines
+
+  let root := directory "/" []
+  helper root [root] lines.tail!
 
 
+def testIn := ["$ cd /", "$ ls", "dir a", "1000 b.txt"]
+#eval parseInput testIn
 
 def runDay : IO Unit := do
   let stdin ← IO.getStdin
   let lines ← readLines stdin
+  let fs := parseInput lines
 
   let stdout ← IO.getStdout
-  stdout.putStrLn s!"{lines}"
+  stdout.putStrLn s!"{fs}"
 
 end Day7
