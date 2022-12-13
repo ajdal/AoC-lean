@@ -11,9 +11,10 @@ lean_lib Day3
 lean_lib Day4
 lean_lib Day5
 lean_lib Day6
+lean_lib Day7
 
 
 @[defaultTarget]
-lean_exe aoc {
+lean_exe «aoc» {
   root := `Main
 }
