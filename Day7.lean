@@ -23,6 +23,14 @@ def getName : Directory → String
   | file _ name => name
   | directory name _ _ => name
 
+def getSize : Directory → Nat
+  | file size _ => size
+  | directory _ _ size => size
+
+def getContents : Directory → List Directory
+  | file _ _ => []
+  | directory _ contents _ => contents
+
 def insertAt (root: Directory) : Directory → List String → Option Directory
   | d, [] => insertDirectory d root
   | d, h :: t =>
@@ -150,20 +158,36 @@ def parseInput : (List String) → Directory := fun lines =>
   let newRoot := helper root [] lines.tail!
   newRoot
 
-
-def testIn := ["$ cd /", "$ ls", "dir a", "1000 b.txt", 
-    "200 c.txt", "dir d", "$ cd a", "$ ls", "dir e", "1342 x.txt", "$ cd e", "$ ls", "584 i.txt", "$ cd ..", "$ cd ..", "$ cd d",
-    "$ ls", "4060174 j"
-  ]
--- def testIn := ["$ cd /", "$ ls", "dir a", "1000 b.txt", "dir d", "$ cd a", "$ ls", "dir e", "$ cd e", "$ ls", "200 lal.txt", "$ cd ..", "$ ls", "100 c.txt"]
--- #eval parseInput testIn
+def find (root : Directory) : Directory :=
+  let rec helper (need : Nat) (min : Directory) (minSize : Nat) : List Directory → Directory := fun contents =>
+    match contents with
+    | [] => min
+    | d::ds =>
+      match d with
+      | directory _ childContents size =>
+        if size < need then
+          helper need min minSize ds
+        else if size < minSize then
+          let minOfContents := helper need d size childContents
+          helper need minOfContents (getSize minOfContents) ds
+        else
+          let minOfContents := helper need d size childContents
+          if (getSize minOfContents) < minSize then
+            helper need minOfContents (getSize minOfContents) ds
+          else
+            helper need min minSize ds
+      | file _ _ => helper need min minSize ds
+  let used := getSize root
+  let need := used - 40000000
+  helper need root used (getContents root)
 
 def runDay : IO Unit := do
   let stdin ← IO.getStdin
+  let stdout ← IO.getStdout
   let lines ← readLines stdin
   let fs := parseInput lines
-
-  let stdout ← IO.getStdout
-  stdout.putStrLn s!"{sumSmaller (getSizes fs).snd}"
+  let root := (getSizes fs).snd
+  let minDir := find root
+  stdout.putStrLn s!"{minDir}"
 
 end Day7
