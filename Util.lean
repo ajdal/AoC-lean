@@ -74,7 +74,6 @@ partial def readLines (stream : IO.FS.Stream) : IO (List String) := do
     let rest ← readLines stream
     return [line.dropRightWhile Char.isWhitespace] ++ rest
 
-
 def State (σ : Type) (α : Type) : Type :=
   σ → (σ × α)
 
@@ -96,4 +95,29 @@ instance (σ : Type) : Monad (State σ) where
   pure := ok
   bind := andThen
 
+structure Set (α : Type) [BEq α] where
+  data : List α 
+  
+@[inline]
+def Set.contains [BEq α] : α → Set α → Bool := fun x A => A.data.contains x
 
+infix:40 " in " => Set.contains
+
+def Set.insert [BEq α] : Set α → α → Set α := fun A x => 
+  if x in A then
+    A
+  else
+    {data := [x] ++ A.data}
+    
+def Set.toString [BEq α] [ToString α] : Set α → String := fun A =>
+  let foo := A.data.toString
+  let moo := foo.replace "[" "{"
+  let boo := moo.replace "]" "}"
+  boo
+  
+instance [BEq α] [ToString α] : ToString (Set α) where
+  toString := Set.toString
+
+def Set.size [BEq α] : Set α → Nat := fun A => A.data.length
+
+#eval {data := [1,2] : Set Nat}
