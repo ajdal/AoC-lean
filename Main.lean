@@ -7,6 +7,7 @@ import Day6
 import Day7
 import Day8
 import Day9
+import Day10
 
 def main : IO Unit := do
   -- DAY 1
@@ -35,5 +36,8 @@ def main : IO Unit := do
   -- Day8.runDay
 
   -- Day 9
-  Day9.runDay
+  -- Day9.runDay
+
+  -- Day 10
+  Day10.runDay
 
