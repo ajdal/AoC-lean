@@ -8,6 +8,7 @@ import Day7
 import Day8
 import Day9
 import Day10
+import Day12
 
 def main : IO Unit := do
   -- DAY 1
