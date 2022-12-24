@@ -120,4 +120,10 @@ instance [BEq α] [ToString α] : ToString (Set α) where
 
 def Set.size [BEq α] : Set α → Nat := fun A => A.data.length
 
+def runDay (day : List String → String) : IO Unit := do
+  let stdin ← IO.getStdin
+  let stdout ← IO.getStdout
+  let lines ← readLines stdin
+  stdout.putStrLn (day lines)
+
 #eval {data := [1,2] : Set Nat}
