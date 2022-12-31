@@ -1,3 +1,8 @@
 /build
 /lean_packages/*
 !/lean_packages/manifest.json
+
+
+# inputs
+day*.in
+!day*_sample.in
