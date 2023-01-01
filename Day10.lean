@@ -79,9 +79,9 @@ def runDay : IO Unit := do
   let lines ← readLines stdin
 
   let regVals := (registerValues (parseInput lines))
-  -- stdout.putStrLn s!"{regVals}"
+  stdout.putStrLn s!"{regVals}"
   let strengths := computeSignalStrengths regVals
-  -- stdout.putStrLn s!"{strengths}"
+  stdout.putStrLn s!"{strengths}"
   stdout.putStrLn s!"{drawCRT regVals}"
 
 end Day10

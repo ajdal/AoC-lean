@@ -31,9 +31,10 @@ def runDay : IO Unit := do
   let stdin ← IO.getStdin
   let stdout ← IO.getStdout
   let line ← stdin.getLine
-  let sol := findDistinct14 0 #[] line.data
-  match sol with
-  | none => return ()
-  | some val => stdout.putStrLn s!"val: {val}"
+  let sol1 := findDistinct4 0 line.data
+  let sol2 := findDistinct14 0 #[] line.data
+  match sol1, sol2 with
+  | some val1, some val2 => stdout.putStrLn s!"val1: {val1}, val2: {val2}"
+  | _, _ => return ()
 
 end Day6
