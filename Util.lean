@@ -225,3 +225,6 @@ instance (n1 n2 : NatInf) : Decidable (n1 < n2) :=
   | .nat _, ∞ => dite (true) (fun h => isTrue h) (fun h => isFalse h)
   | ∞, .nat _ => dite (false) (fun h => isTrue h) (fun h => isFalse h)
   | ∞, ∞ => dite (false) (fun h => isTrue h) (fun h => isFalse h)
+
+
+def sum : List Nat → Nat := fun l => l.foldl (fun s n => s + n) 0
