@@ -5,29 +5,32 @@ namespace Day16
 
 declare_syntax_cat twoletter
 
-syntax "[twoletter|" "my bag holds" ident,+ "balls" "]" : term
+structure Valve where
+  name : String
+  rate : Nat
+  tunnels : List String
+deriving Repr
 
+syntax "Valve " ident " has flow rate=" num "; tunnels lead to valves " ident,+ : term
 open Lean Elab Macro Tactic in
 macro_rules
-| `([twoletter| my bag holds $xs,* balls ]) => do
-    let mut outs : Array (TSyntax `str) := #[]
-    for x in xs.getElems do
-      let xstr := x.getId.toString
+| `(Valve $v has flow rate=$r; tunnels lead to valves $xs,* ) => do
+    let vstr := v.getId.toString
+    if vstr.length = 2 && (vstr.get! ⟨0⟩).isUpper &&  (vstr.get! ⟨1⟩).isUpper then
+      let val : TSyntax `str := Lean.quote vstr
+      let mut outs : Array (TSyntax `str) := #[]
+      for x in xs.getElems do
+        let xstr := x.getId.toString
 
-      -- TODO: what is the right way to index a String?
-      if xstr.length = 2 && (xstr.get! ⟨0⟩).isUpper &&  (xstr.get! ⟨1⟩).isUpper then
-        do outs := outs.push (Lean.quote xstr)
-        else Macro.throwErrorAt x s!"expected two letter uppercase string, found '{xstr}'"
-    `([ $outs,* ])
+        -- TODO: what is the right way to index a String?
+        if xstr.length = 2 && (xstr.get! ⟨0⟩).isUpper &&  (xstr.get! ⟨1⟩).isUpper then
+          do outs := outs.push (Lean.quote xstr)
+          else Macro.throwErrorAt x s!"expected two letter uppercase string, found '{xstr}'"
+      `(Valve.mk (name := $val) (rate := $r) (tunnels := [ $outs,* ]))
 
-#reduce [twoletter| my bag holds AA, BB, CC balls]  -- ["AA", "BB", "CC"]
-#reduce [twoletter| my bag holds AA, BB, CX balls]  -- expected two letter repeated string, found 'CX'
-#reduce [twoletter| my bag holds AA, BB, Cx balls]  -- expected two letter repeated string, found 'CX'
-#reduce [twoletter| my bag holds AAA balls]  -- expected two letter repeated string, found 'AAA'
+    else Macro.throwErrorAt v s!"expected two letter uppercase string, found '{vstr}'"
 
-
-syntax "Valve " str " has flow rate=" num "; tunnels lead to valves " str,+ : term 
-
+#reduce Valve AA has flow rate=0; tunnels lead to valves DD, II, BB  -- ["AA", "BB", "CC"]
 
 
 #eval ("AB".get! ⟨ 0 ⟩).isUpper
