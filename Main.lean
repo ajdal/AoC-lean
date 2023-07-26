@@ -48,4 +48,4 @@ def main : IO Unit := do
   -- runDay Day12.runDay
 
   -- Day 13
-  runDay Day13.runDay
+  Util.runDay Day13.runDay

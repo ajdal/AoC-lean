@@ -1,6 +1,11 @@
 import Util
+import Grid
+import NatInf
+import Stack
 
 namespace Day12
+
+open Grid NatInf Stack
 
 structure Hill : Type where
   heightMap : Grid Nat
@@ -28,8 +33,8 @@ def parseInput : List String → Option Hill := fun lines => do
   let fst ← lines[0]?
   let m := fst.length
   let heights := Grid.make n m 0
-  let rows := range 0 n
-  let cols := range 0 m
+  let rows := Util.range 0 n
+  let cols := Util.range 0 m
   let inputs := List.zip rows lines
   let rec helper (heights : Grid Nat) (start : Nat × Nat) (goal : Nat × Nat) : List (Nat × String) → Hill
     | [] => {heightMap := heights, start := start, goal := goal}
@@ -134,7 +139,7 @@ def getShortestDist (m n : Nat) (hill : Hill) : NatInf :=
   let dists := Grid.make m n (∞)
   let dists := dists.set xₑ yₑ 0
   let shortestDists := helper hill dists [(xₑ, yₑ)]
-  findShortestStart m n heights shortestDists (range 0 (m * n))
+  findShortestStart m n heights shortestDists (Util.range 0 (m * n))
 
 def runDay (input : List String) : String :=
   match parseInput input with

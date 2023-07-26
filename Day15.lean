@@ -1,9 +1,10 @@
 import Lean
 import Util
+import Range
 
 namespace Day15
 
-open Lean
+open Lean Range
 
 set_option maxRecDepth 1000000000
 

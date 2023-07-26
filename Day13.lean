@@ -108,7 +108,7 @@ instance : BEq Contents where
 def runDay (input : List String) : String :=
   let inOrder := (((parseInput input).map (fun ⟨ fst, snd ⟩ => ([parseContents fst] < [parseContents snd] ) == some true)).enumFrom 1)
   let indices := (inOrder.filter (fun ⟨ _, b ⟩ => b == true)).map (fun ⟨ i, _ ⟩ => i)
-  let total := sum indices
+  let total := Util.sum indices
   let sortedContents := (sortMyShit (prepareDataForPart2 (parseInput input)))
   match (sortedContents.indexOf? divider1), (sortedContents.indexOf? divider2) with
   | some i₁, some i₂ =>

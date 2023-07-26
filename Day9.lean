@@ -1,5 +1,8 @@
 import Util
+import Set
 namespace Day9
+
+open Set
 
 inductive Direction : Type where
   | left : Direction
@@ -134,7 +137,7 @@ def computePathLength' (instructions: List (Direction × Int)) : Int :=
 def runDay : IO Unit := do
   let stdin ← IO.getStdin
   let stdout ← IO.getStdout
-  let lines ← readLines stdin
+  let lines ← Util.readLines stdin
   
   stdout.putStrLn s!"{computePathLength (parseInput lines)}"
   stdout.putStrLn s!"{computePathLength' (parseInput lines)}"

@@ -5,7 +5,10 @@ package aoc {
   -- add package configuration options here
 }
 
-lean_lib Util
+lean_lib Util {
+  srcDir := "Util",
+  roots := #[`Grid, `NatInf, `Range, `Set, `Stack, `State, `Util]
+}
 lean_lib Day1
 lean_lib Day2
 lean_lib Day3
@@ -23,7 +26,7 @@ lean_lib Day14
 lean_lib Day15
 
 
-@[defaultTarget]
+@[default_target]
 lean_exe «aoc» {
   root := `Main
 }

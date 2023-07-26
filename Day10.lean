@@ -1,5 +1,9 @@
 import Util
+import State
+
 namespace Day10
+
+open State
 
 inductive Instruction : Type where
   | noop : Instruction
@@ -76,7 +80,7 @@ def computeSignalStrengths : List (Nat × Int) → Option (Int) := fun regXValue
 def runDay : IO Unit := do
   let stdin ← IO.getStdin
   let stdout ← IO.getStdout
-  let lines ← readLines stdin
+  let lines ← Util.readLines stdin
 
   let regVals := (registerValues (parseInput lines))
   stdout.putStrLn s!"{regVals}"
