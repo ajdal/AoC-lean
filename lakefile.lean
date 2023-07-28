@@ -5,6 +5,9 @@ package aoc {
   -- add package configuration options here
 }
 
+require Qq from git
+  "https://github.com/gebner/quote4.git"
+
 lean_lib Util {
   srcDir := "Util",
   roots := #[`Grid, `NatInf, `Range, `Set, `Stack, `State, `Util]

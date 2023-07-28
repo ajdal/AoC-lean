@@ -1,9 +1,26 @@
 import Util
+import Lean
+import Qq
 
 namespace Grid
 
+open Lean
+
 def Grid (α : Type) : Type :=
   Array (Array α)
+
+def helper : TSyntaxArray `num -> Array Nat := fun ns =>
+  ns.map (fun n => n.getNat)
+
+#check mkAppN
+
+syntax "g[" sepBy(num*, ";") "]" : term
+macro_rules
+| `(g[ $[$nns:num*];* ]) => do
+    let foo := Array.foldl (fun prev ns => prev ++ helper ns) #[] nns
+    `($foo)
+
+-- #check g[ 1 2 ; 1 2 ; 3 4 ]
 
 def Grid.get? : Grid α → Nat → Nat → Option α :=
   fun g i j => do
