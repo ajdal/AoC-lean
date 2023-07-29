@@ -32,7 +32,7 @@ def parseInput : List String → Option Hill := fun lines => do
   let n := lines.length
   let fst ← lines[0]?
   let m := fst.length
-  let heights := Grid.make n m 0
+  let heights := Grid.fill n m 0
   let rows := Util.range 0 n
   let cols := Util.range 0 m
   let inputs := List.zip rows lines
@@ -81,7 +81,7 @@ partial def helper (hill : Hill) (dists : Grid NatInf) (stack : Stack (Nat × Na
   | none => dists
   | some ⟨ x, y ⟩ => 
     match (dists.get? x y) with
-    | none => Grid.make 1 1 0
+    | none => Grid.fill 1 1 0
     | some dCurr => 
       let neighbors := [(x+1, y), (x, y+1), (x-1, y), (x, y-1)]
       let theChosenOnes := neighbors.foldl (
@@ -93,7 +93,7 @@ partial def helper (hill : Hill) (dists : Grid NatInf) (stack : Stack (Nat × Na
   
 def findShortestDist (m n : Nat) (hill : Hill) : NatInf := 
   let ⟨ _, ⟨ xₛ , yₛ ⟩, ⟨ xₑ, yₑ ⟩ ⟩ := hill
-  let dists := Grid.make m n (∞)
+  let dists := Grid.fill m n (∞)
   let dists := dists.set xₑ yₑ 0
   let shortestDists := helper hill dists [(xₑ, yₑ)]
   match shortestDists.get? xₛ yₛ with
@@ -108,7 +108,7 @@ def run : (Option Hill) → NatInf
   | none => 0
   | some hill => findShortestDist 5 8 hill
     -- let ⟨ _, ⟨ xₛ , yₛ ⟩, ⟨ xₑ, yₑ ⟩ ⟩ := hill
-    -- let dists := Grid.make 5 8 (∞)
+    -- let dists := Grid.fill 5 8 (∞)
     -- let dists := dists.set xₑ yₑ 0
     -- helper hill dists [(xₑ, yₑ)]
 
@@ -118,7 +118,7 @@ def indToSub (m n i : Nat) : Nat × Nat :=
   (i / n, i % n)
 
 def getHill : (Option Hill) → Hill
-  | none => ⟨ (Grid.make 2 2 0), (0, 0), (1, 1)⟩
+  | none => ⟨ (Grid.fill 2 2 0), (0, 0), (1, 1)⟩
   | some hill => hill 
 
 def findShortestStart (m n : Nat) (heights : Grid Nat) (dists : Grid NatInf) : List Nat → NatInf
@@ -136,7 +136,7 @@ def findShortestStart (m n : Nat) (heights : Grid Nat) (dists : Grid NatInf) : L
 
 def getShortestDist (m n : Nat) (hill : Hill) : NatInf := 
   let ⟨ heights, ⟨ xₛ , yₛ ⟩, ⟨ xₑ, yₑ ⟩ ⟩ := hill
-  let dists := Grid.make m n (∞)
+  let dists := Grid.fill m n (∞)
   let dists := dists.set xₑ yₑ 0
   let shortestDists := helper hill dists [(xₑ, yₑ)]
   findShortestStart m n heights shortestDists (Util.range 0 (m * n))
@@ -205,7 +205,7 @@ def goal := getEnd hill
 #eval goal
 def m := 5
 def n := 8
-def dists := Grid.make m n (∞)
+def dists := Grid.fill m n (∞)
 def x := 5
 def y := 2
 def neighbors := [(x+1, y), (x, y+1), (x-1, y), (x, y-1)]

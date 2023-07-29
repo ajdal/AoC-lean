@@ -4,23 +4,56 @@ import Qq
 
 namespace Grid
 
-open Lean
-
 def Grid (α : Type) : Type :=
   Array (Array α)
 
-def helper : TSyntaxArray `num -> Array Nat := fun ns =>
-  ns.map (fun n => n.getNat)
+def Grid.mk {α : Type} (data : Array (Array α)) : Grid α := data 
 
-#check mkAppN
+-- Creates Grid α of size m x n filled with default
+def Grid.fill (m n : Nat) (default : α) : Grid α :=
+  mkArray m (mkArray n default)
 
-syntax "g[" sepBy(num*, ";") "]" : term
+def Grid.toString [ToString α] : Grid α → String := fun g =>
+  g.foldl (fun s r => 
+    let row := " ".joinSep (r.map ToString.toString).toList
+    s ++ row ++ "\n"
+  ) ""
+
+instance [ToString α] : ToString (Grid α) where
+  toString := Grid.toString
+
+section Parser
+open Lean Elab Macro Tactic
+
+
+/--
+  Define a matlab-like notation for grids.
+  We can defined a grid as e.g. [[ 1 2 ; 3 4 ]]
+  for a grid with two rows and two columns.
+
+  We don't allow the creating of empty grids with this syntax
+-/
+syntax (name := gridNotation) "[[" sepBy1(sepBy1(term, ","), ";") "]]" : term
+syntax (name := gridNotationOnlyCommas) "[[" ","+ "]]" : term
+syntax (name := gridNotationOnlySemiColons) "[[" ";"* "]]" : term
 macro_rules
-| `(g[ $[$nns:num*];* ]) => do
-    let foo := Array.foldl (fun prev ns => prev ++ helper ns) #[] nns
-    `($foo)
+| `([[ $[$[$rows],*];* ]]) => do
+    let m := rows.size
+    let n := if h : 0 < m then rows[0].size else 0
+    let rowVecs ← rows.mapM fun row : Array (TSyntax `term) => do 
+      if row.size != n then
+        Macro.throwErrorAt (mkNullNode row)
+          s!"Rows must be of equal length; this row has {row.size} items, the previous rows {"
+          "}have {n}"
+      else 
+        `(#[ $[$row],* ])
+    `(Grid.mk #[ $rowVecs,* ])
+  | `([[ $[;%$semicolons]* ]]) =>
+      Macro.throwError "Cannot create empty Grid"
+  | `([[$[,%$commas]* ]]) => 
+      Macro.throwError "Cannot create empty Grid"
 
--- #check g[ 1 2 ; 1 2 ; 3 4 ]
+end Parser
 
 def Grid.get? : Grid α → Nat → Nat → Option α :=
   fun g i j => do
@@ -41,18 +74,6 @@ def Grid.set : Grid α → Nat → Nat → α → Grid α :=
     | some row =>
       let newRow := Array.setD row j x
       Array.setD g i newRow
-
--- Creates Grid α of size m x n filled with default
-def Grid.make (m n : Nat) (default : α) : Grid α :=
-  mkArray m (mkArray n default)
-
-def Grid.toString [ToString α] : Grid α → String := fun g =>
-  g.foldl (fun s r => 
-    s ++ (r.foldl (fun s' c => s' ++ s!"{c}") "") ++ "\n"
-  ) ""
-
-instance [ToString α] : ToString (Grid α) where
-  toString := Grid.toString
 
 def Grid.getCol : Grid α → Nat → Array α := fun g col =>
   let rec helper (g : Grid α) (col : Nat) : List Nat → List α

@@ -25,3 +25,13 @@ def runDay (day : List String → String) : IO Unit := do
 def sum : List Nat → Nat := fun l => l.foldl (fun s n => s + n) 0
 
 end Util
+
+def String.joinSep (sep : String) : List String → String
+| [] => ""
+| s :: [] => s
+| s :: ss =>
+  s ++ sep ++ joinSep sep ss
+
+#check String.joinSep
+
+#eval ",".joinSep ["la", "la"]
