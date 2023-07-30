@@ -25,7 +25,6 @@ instance [ToString α] : ToString (Grid α) where
 section Parser
 open Lean Elab Macro Tactic
 
-
 /--
   Define a matlab-like notation for grids.
   We can defined a grid as e.g. [[ 1 2 ; 3 4 ]]
@@ -60,6 +59,11 @@ def Grid.get? : Grid α → Nat → Nat → Option α :=
     let row ← Array.get? g i
     let el ← row[j]?
     el
+
+def Grid.get! {α : Type} [Inhabited α] : Grid α → Nat → Nat → α :=
+  fun g i j =>
+    let row := Array.get! g i
+    row[j]!
 
 def Grid.getRowD : Grid α → Nat → Array α :=
   fun g i => 
