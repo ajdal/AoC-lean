@@ -1,16 +1,5 @@
 import Util
-import Day1
-import Day2
-import Day3
-import Day4
-import Day5
-import Day6
-import Day7
-import Day8
-import Day9
-import Day10
-import Day12
-import Day13
+import AoC2022.Day1
 
 def main : IO Unit := do
   -- DAY 1
@@ -28,10 +17,10 @@ def main : IO Unit := do
 
   -- Day 5
   -- Day5.runDay
-  
+
   -- Day 6
   -- Day6.runDay
-  
+
   -- Day 7
   -- Day7.runDay
 
@@ -48,4 +37,4 @@ def main : IO Unit := do
   -- runDay Day12.runDay
 
   -- Day 13
-  Util.runDay Day13.runDay
+  Day1.calories

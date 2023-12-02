@@ -1,0 +1,14 @@
+{"version": 7,
+ "packagesDir": ".lake/packages",
+ "packages":
+ [{"url": "https://github.com/gebner/quote4.git",
+   "type": "git",
+   "subDir": null,
+   "rev": "ccba5d35d07a448fab14c0e391c8105df6e2564c",
+   "name": "Qq",
+   "manifestFile": "lake-manifest.json",
+   "inputRev": null,
+   "inherited": false,
+   "configFile": "lakefile.lean"}],
+ "name": "aoc",
+ "lakeDir": ".lake"}
