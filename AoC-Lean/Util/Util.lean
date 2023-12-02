@@ -6,7 +6,7 @@ def range (start : Nat) (stop : Nat) : List Nat :=
   else
     ((List.range (start + 1)).drop (stop + 1)).reverse
 
-partial def readLines (stream : IO.FS.Stream) : IO (List String) := do 
+partial def readLines (stream : IO.FS.Stream) : IO (List String) := do
   let line ← stream.getLine
   if line.length = 0 then
     return []
@@ -25,3 +25,9 @@ def runDay (day : List String → String) : IO Unit := do
 def sum : List Nat → Nat := fun l => l.foldl (fun s n => s + n) 0
 
 end Util
+
+def String.joinSep (sep : String) : List String → String
+| [] => ""
+| s :: [] => s
+| s :: ss =>
+  s ++ sep ++ joinSep sep ss

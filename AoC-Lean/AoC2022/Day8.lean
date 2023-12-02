@@ -34,7 +34,7 @@ def Grid.set : Grid → Nat → Nat → Nat → Grid :=
       Array.setD g i newRow
 
 -- Creates Grid of size m x n filled with default
-def Grid.make (m n : Nat) (default := 0) : Grid :=
+def Grid.fill (m n : Nat) (default := 0) : Grid :=
   mkArray m (mkArray n default)
 
 def Grid.toString : Grid → String := fun g =>
@@ -67,7 +67,7 @@ def parseInput (lines : List String) : (Grid × Nat × Nat) :=
   | none => (#[], m, 0)
   | some row0 =>
     let n := row0.length
-    let g := Grid.make m n 0
+    let g := Grid.fill m n 0
     (parseRows g 0 lines, m, n)
 
 def indToSub (m n i : Nat) : Nat × Nat := 
