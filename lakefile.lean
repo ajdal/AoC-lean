@@ -17,7 +17,11 @@ lean_lib AoC2022 {
   srcDir := "AoC-Lean"
 }
 
+lean_lib AoC2023 {
+  srcDir := "AoC-Lean"
+}
+
 @[default_target]
-lean_exe «aoc» {
+lean_exe aoc {
   root := `Main
 }
