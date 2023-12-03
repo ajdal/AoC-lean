@@ -1,5 +1,5 @@
 import Util
-import AoC2023.Day1
+import AoC2023.Day3
 
 def main : IO Unit := do
-  Util.runDay Day1.runDay
+  Util.runDay Day3.runDay
