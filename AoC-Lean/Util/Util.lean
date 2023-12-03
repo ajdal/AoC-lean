@@ -21,8 +21,11 @@ def runDay (day : List String → String) : IO Unit := do
   let lines ← readLines stdin
   stdout.putStrLn (day lines)
 
-
-def sum : List Nat → Nat := fun l => l.foldl (fun s n => s + n) 0
+/--
+  Sum the value of a list, with initial value `initial`
+-/
+def sum {α : Type} [HAdd α α α] (initial : α) : List α → α :=
+  fun l => l.foldl (fun s n => s + n) initial
 
 end Util
 
