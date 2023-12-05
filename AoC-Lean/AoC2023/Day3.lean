@@ -3,16 +3,21 @@ import Util
 namespace Day3
 
 def Pos := Nat × Nat
-deriving Repr
+deriving Repr, ToString
 
 structure Number where
   value : Nat
   location : Pos
 deriving Repr
 
+structure Sym where
+  symbol : Char
+  pos : Pos
+deriving Repr
+
 structure Schematic where
   numbers : List Number := []
-  symbols : List (Char × Pos) := []
+  symbols : List Sym := []
 deriving Repr
 
 inductive NumOrSym where
@@ -29,8 +34,6 @@ def whileDigit (digits : List Char) : List Char → List Char × List Char :=
     else
       (digits.reverse, s)
 
-#eval whileDigit [] "123aa4".data
-
 partial def parseLine : String → List NumOrSym := fun s =>
   let rec fold (i : Nat) (acc : List NumOrSym) : List Char → List NumOrSym
   | [] => acc
@@ -45,13 +48,6 @@ partial def parseLine : String → List NumOrSym := fun s =>
       fold (i+1) acc cs
   fold 0 [] s.data
 
-#eval parseLine "aa123a"
-
-def lines := [
-  "467..114..",
-  "617*......",
-  "...$.*...."
-]
 
 def parseInput : List String → Schematic :=
   fun lns =>
@@ -69,7 +65,6 @@ def parseInput : List String → Schematic :=
       parse (i+1) s lns
     parse 0 {} lns
 
-#eval parseInput lines
 
 -- (i-1, j-1) --- (i-1, j+len+1)
 -- (i+1, j-1) --- (i+1, j+len+1)
@@ -82,29 +77,60 @@ def parseInput : List String → Schematic :=
 def isAdjacent (len : Nat) : (Nat × Nat) → (Nat × Nat) → Bool :=
   fun (i,j) (i', j') =>
     (i-1) ≤ i' && i' ≤ (i+1) &&
-    (j-1) ≤ j' && j' ≤ (j+len+1)
+    (j-1) ≤ j' && j' ≤ (j+len)
 
-def findParts : Schematic → List Nat := fun s =>
+
+def findParts : Schematic → List Number := fun s =>
   let parts := s.numbers.filter (
     fun n =>
       let i := n.location.fst
       let j := n.location.snd
-      let len :=  (n.value.toDigits 10).length
+      let len := (Nat.toDigits 10 n.value).length
       let sym := s.symbols.find? (fun sym =>
-        let i' := sym.snd.fst
-        let j' := sym.snd.snd
+        let i' := sym.pos.fst
+        let j' := sym.pos.snd
         isAdjacent len (i, j) (i', j')
       )
       match sym with
       | some _ => true
       | none => false
   )
-  parts.map (fun p => p.value)
+  parts
+
+def findAdjacentNumbers (s : Schematic) : Sym → List Number := fun sym =>
+  s.numbers.filter (fun n =>
+    let len := (Nat.toDigits 10 n.value).length
+    isAdjacent len (n.location.fst, n.location.snd) (sym.pos.fst, sym.pos.snd)
+  )
+
+def findGears : Schematic → List Nat := fun s =>
+  let gears := ((s.symbols.filter (fun sym => sym.symbol = '*')).map
+    (fun sym => findAdjacentNumbers s sym)).filter (fun ls => ls.length = 2)
+  gears.map (fun nums => nums.foldl (fun acc n => acc * n.value) 1)
+  -- gears
+
+def lines := [
+  "467..114..",
+  "...*......",
+  "..35..633.",
+  "......#...",
+  "617*......",
+  ".....+.58.",
+  "..592.....",
+  "......755.",
+  "...$.*....",
+  ".664.598.."
+]
+
+#eval findGears (parseInput lines)
+
 
 def runDay : List String → String :=
   fun ls =>
     let s := parseInput ls
-    let sum := Util.sum 0 (findParts s)
-    s!"{sum}"
+    -- Part 1
+    let part1 := Util.sum 0 ((findParts s).map Number.value)
+    let part2 := Util.sum 0 (findGears s)
+    s!"Part 1:{part1}\nPart 2:{part2}"
 
 end Day3
