@@ -27,6 +27,31 @@ def runDay (day : List String → String) : IO Unit := do
 def sum {α : Type} [HAdd α α α] (initial : α) : List α → α :=
   fun l => l.foldl (fun s n => s + n) initial
 
+def whileDigit (digits : List Char) : List Char → List Char × List Char :=
+  fun s => match s with
+  | [] => (digits.reverse, [])
+  | c :: cs =>
+    if c.isDigit then
+      whileDigit ([c] ++ digits) cs
+    else
+      (digits.reverse, s)
+
+partial def parseNats : String → List Nat := fun s =>
+  let cs := s.data
+  let rec fold : List Char → List Nat
+    | [] => []
+    | c :: cs =>
+      if Char.isDigit c then
+        let (digits, cs) := whileDigit [c] cs
+        let rest := fold cs
+        match String.toNat? (String.mk digits) with
+        | some n => [n] ++ rest
+        | none => rest
+      else
+        fold cs
+  fold cs
+
+
 end Util
 
 def String.joinSep (sep : String) : List String → String

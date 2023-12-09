@@ -22,11 +22,11 @@ def Int.min : Int → Int → Int := fun k l => if k < l then k else l
 def Range.intersection : Range → Range → Range := sorry
 
 def Range.overlap : Range → Range → Bool
-  | r1, r2 => (Int.max r1.low r2.low) ≤ (Int.min r1.high r2.high) 
+  | r1, r2 => (Int.max r1.low r2.low) ≤ (Int.min r1.high r2.high)
 
-def Range.isEmpty : Range → Bool := fun r => r.high < r.low 
+def Range.isEmpty : Range → Bool := fun r => r.high < r.low
 
-def Range.blob : Range → Range → Range := fun r1 r2 => ⟨ Int.min r1.low r2.low, Int.max r1.high r2.high ⟩ 
+def Range.blob : Range → Range → Range := fun r1 r2 => ⟨ Int.min r1.low r2.low, Int.max r1.high r2.high ⟩
 
 def Range.contains : Range → Int → Bool := fun r k => r.low ≤ k && k ≤ r.high
 
