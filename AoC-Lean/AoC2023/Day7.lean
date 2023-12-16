@@ -14,6 +14,22 @@ instance (c1 c2 : Card) : Decidable (c1 < c2) :=
   else
     isFalse h
 
+def Card.ofChar : Char → Card
+  | '2' => 0
+  | '3' => 1
+  | '4' => 2
+  | '5' => 3
+  | '6' => 4
+  | '7' => 5
+  | '8' => 6
+  | '9' => 7
+  | 'T' => 8
+  | 'J' => 9
+  | 'Q' => 10
+  | 'K' => 11
+  | 'A' => 12
+  | _ => panic! "Invalid card"
+
 structure Hand where
   cards : List Card
 deriving Repr
@@ -58,10 +74,23 @@ def Hand.getType : Hand → HandType := fun h =>
     | _ => HandType.OnePair
   | _ => HandType.High
 
-def countCards (counts : Array Nat) : List Card → Array Nat
-    | [] => counts
-    | card :: cards =>
-      countCards (counts.set! card ((counts.get! card) + 1)) cards
+def Hand.removeJollys : Hand → Hand
+  | {cards := cards} => {cards := cards.filter (fun x => x != Card.ofChar 'J')}
+
+def Hand.countJollys : Hand → Nat := fun h =>
+  h.cards.length - h.removeJollys.cards.length
+
+open HandType in
+def HandType.applyJollys : HandType → Nat → HandType
+  | ht, 0 => ht
+  | High, 1 => OnePair
+  | OnePair, 1 => Three
+  | TwoPair, 1 => FullHouse
+  | Three, 1 => Four
+  | High, 2 => Three
+  | OnePair, 2 => Four
+  | High, 3 => Four
+  | _, _ => Five
 
 def Hand.lt : Hand → Hand → Bool :=
   fun h₁ h₂ =>
@@ -72,28 +101,24 @@ def Hand.lt : Hand → Hand → Bool :=
     h₁.getType = h₂.getType &&
     lower (List.zip h₁.cards h₂.cards)
 
-def solve : List (Hand × Nat) → List (Nat × Hand × Nat)  := fun hbs =>
+def Hand.lt2 : Hand → Hand → Bool :=
+  fun h₁ h₂ =>
+    let rec lower : List (Card × Card) → Bool
+      | [] => false
+      | (9, 9) :: cards => lower cards
+      | (_, 9) :: _ => false
+      | (9, _) :: _ => true
+      | (c₁, c₂) :: cards => c₁ < c₂ || c₁ = c₂ && lower cards
+    let ht₁ := h₁.removeJollys.getType.applyJollys (h₁.countJollys)
+    let ht₂ := h₂.removeJollys.getType.applyJollys (h₂.countJollys)
+    ht₁.lt ht₂ || ht₁ = ht₂ && lower (List.zip h₁.cards h₂.cards)
+
+def solve : List (Hand × Nat) → (Hand → Hand → Bool) →
+  List (Nat × Hand × Nat) := fun hbs lt =>
   let sorted := (hbs.toArray.insertionSort (
-    fun (h1, _) (h2, _) => h1.lt h2
+    fun (h1, _) (h2, _) => lt h1 h2
   )).toList
   sorted.enum
-
-
-def Card.ofChar : Char → Card
-  | '2' => 0
-  | '3' => 1
-  | '4' => 2
-  | '5' => 3
-  | '6' => 4
-  | '7' => 5
-  | '8' => 6
-  | '9' => 7
-  | 'T' => 8
-  | 'J' => 9
-  | 'Q' => 10
-  | 'K' => 11
-  | 'A' => 12
-  | _ => panic! "Invalid card"
 
 def parseLines : List String → List (Hand × Nat)
   | [] => []
@@ -105,8 +130,10 @@ def parseLines : List String → List (Hand × Nat)
 
 def runDay : List String → String := fun lns =>
   let data := parseLines lns
-  let sln1 := (solve data).foldl (fun acc (r, _, b) => acc + (r+1) * b) 0 -- 6440
-  let sln2 := 0
+  let sln1 := (solve data Hand.lt).foldl (
+    fun acc (r, _, b) => acc + (r+1) * b) 0 -- 6440
+  let sln2 := (solve data Hand.lt2).foldl (
+    fun acc (r, _, b) => acc + (r+1) * b) 0 -- 5905
   s!"Part 1: {sln1}\nPart 2: {sln2}"
 
 end Day7
