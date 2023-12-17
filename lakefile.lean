@@ -8,6 +8,8 @@ package aoc {
 require Qq from git
   "https://github.com/gebner/quote4.git"
 
+require std from git "https://github.com/leanprover/std4" @ "main"
+
 lean_lib Util {
   srcDir := "AoC-Lean/Util",
   roots := #[`Grid, `NatInf, `Range, `Set, `Stack, `State, `Util]

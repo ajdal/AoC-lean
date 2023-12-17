@@ -1,3 +1,5 @@
+import Std.Data.HashMap
+
 namespace Day8
 
 inductive Instruction where
@@ -16,6 +18,7 @@ structure Node where
   right : Label
 deriving Repr
 
+#check Std.HashMap
 
 def parseInstructions : List String → List Instruction × List String
   | [] => ([], [])
