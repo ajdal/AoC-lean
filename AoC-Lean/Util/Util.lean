@@ -51,20 +51,21 @@ partial def parseNats : String → List Nat := fun s =>
         fold cs
   fold cs
 
-partial def parseInts : String → List Int := fun s =>
-  let cs := s.data
-  let rec fold : List Char → List Int
-    | [] => []
-    | c :: cs =>
-      if Char.isDigit c then
-        let (digits, cs) := whileDigit [c] cs
-        let rest := fold cs
-        match String.toInt? (String.mk digits) with
-        | some n => [n] ++ rest
-        | none => rest
-      else
-        fold cs
-  fold cs
+-- DOESN'T WORK!
+-- partial def parseInts : String → List Int := fun s =>
+--   let cs := s.data
+--   let rec fold : List Char → List Int
+--     | [] => []
+--     | c :: cs =>
+--       if Char.isDigit c then
+--         let (digits, cs) := whileDigit [c] cs
+--         let rest := fold cs
+--         match String.toInt? (String.mk digits) with
+--         | some n => [n] ++ rest
+--         | none => rest
+--       else
+--         fold cs
+--   fold cs
 
 end Util
 
