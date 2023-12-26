@@ -68,6 +68,10 @@ def Grid.get! {α : Type} [Inhabited α] : Grid α → Nat → Nat → α :=
     let row := Array.get! g i
     row[j]!
 
+/--
+  Return the `n`-th row, or any empty array if `n` is not a
+  valid index array.
+-/
 def Grid.getRowD : Grid α → Nat → Array α :=
   fun g i =>
     match Array.get? g i with
@@ -106,5 +110,10 @@ def Grid.getRow : Grid α → Nat → Array α := fun g row =>
   | some r₀ =>
     let col := Util.range 0 (r₀.size)
     (helper g row col).toArray
+
+def Grid.transpose : Grid α → Grid α := fun g =>
+  let m := (g.getRow 0).size
+  let cols := List.foldl (fun cols i => g.getCol i :: cols) [] (Util.range 0 m)
+  Grid.mk (cols.reverse.toArray)
 
 end Grid

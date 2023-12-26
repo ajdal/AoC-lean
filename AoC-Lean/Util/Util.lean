@@ -69,6 +69,10 @@ partial def parseNats : String → List Nat := fun s =>
 
 end Util
 
+def Array.mapi {α : Type u} {β : Type v} (f : Nat → α → β) (as : Array α) : Array β :=
+  let asi := List.toArray (List.enum (Array.toList as))
+  asi.map (fun (i, x) => f i x)
+
 def String.joinSep (sep : String) : List String → String
 | [] => ""
 | s :: [] => s

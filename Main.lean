@@ -9,6 +9,7 @@ import AoC2023.Day7
 import AoC2023.Day8
 import AoC2023.Day9
 import AoC2023.Day10
+import AoC2023.Day11
 
 def main : IO Unit := do
-  Util.runDay Day10.runDay
+  Util.runDay Day11.runDay
