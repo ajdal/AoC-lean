@@ -7,20 +7,23 @@ namespace Grid
 def Grid (α : Type) : Type :=
   Array (Array α)
 
-def Grid.mk {α : Type} (data : Array (Array α)) : Grid α := data 
+def Grid.mk {α : Type} (data : Array (Array α)) : Grid α := data
 
 -- Creates Grid α of size m x n filled with default
 def Grid.fill (m n : Nat) (default : α) : Grid α :=
   mkArray m (mkArray n default)
 
 def Grid.toString [ToString α] : Grid α → String := fun g =>
-  g.foldl (fun s r => 
+  g.foldl (fun s r =>
     let row := " ".joinSep (r.map ToString.toString).toList
     s ++ row ++ "\n"
   ) ""
 
 instance [ToString α] : ToString (Grid α) where
   toString := Grid.toString
+
+instance [ToString α] : Repr (Grid α) where
+  reprPrec g _ := g.toString
 
 section Parser
 open Lean Elab Macro Tactic
@@ -39,17 +42,17 @@ macro_rules
 | `([[ $[$[$rows],*];* ]]) => do
     let m := rows.size
     let n := if h : 0 < m then rows[0].size else 0
-    let rowVecs ← rows.mapM fun row : Array (TSyntax `term) => do 
+    let rowVecs ← rows.mapM fun row : Array (TSyntax `term) => do
       if row.size != n then
         Macro.throwErrorAt (mkNullNode row)
           s!"Rows must be of equal length; this row has {row.size} items, the previous rows {"
           "}have {n}"
-      else 
+      else
         `(#[ $[$row],* ])
     `(Grid.mk #[ $rowVecs,* ])
   | `([[ $[;%$semicolons]* ]]) =>
       Macro.throwError "Cannot create empty Grid"
-  | `([[$[,%$commas]* ]]) => 
+  | `([[$[,%$commas]* ]]) =>
       Macro.throwError "Cannot create empty Grid"
 
 end Parser
@@ -66,13 +69,13 @@ def Grid.get! {α : Type} [Inhabited α] : Grid α → Nat → Nat → α :=
     row[j]!
 
 def Grid.getRowD : Grid α → Nat → Array α :=
-  fun g i => 
+  fun g i =>
     match Array.get? g i with
     | none => #[]
     | some row => row
 
 def Grid.set : Grid α → Nat → Nat → α → Grid α :=
-  fun g i j x => 
+  fun g i j x =>
     match Array.get? g i with
     | none => g
     | some row =>

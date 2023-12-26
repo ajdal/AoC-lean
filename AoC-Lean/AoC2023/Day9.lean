@@ -12,10 +12,18 @@ def Sequence.derive : Sequence -> Sequence
     (k2 - k1) :: Sequence.derive (k2 :: ks)
 
 notation "dx" s => Sequence.derive s
-
 theorem seq_len_less (seq : Sequence) :
   (List.length seq > 0) → List.length (dx seq) < List.length seq := by
-  sorry
+  intro h
+  induction seq with
+  | nil => contradiction
+  | cons k ks ih =>
+    unfold Sequence.derive
+    match ks with
+    | [] =>
+      simp
+      exact Nat.zero_lt_succ 0
+    | k' :: ks' => sorry
 
 def allZeros : Sequence -> Bool
   | [] => true
