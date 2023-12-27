@@ -35,6 +35,9 @@ structure Record where
   groups : List Nat
 deriving Repr, Inhabited, BEq, Hashable
 
+instance : ToString Record where
+  toString r := s!"{r.springs} {r.groups}"
+
 def tryFixN (n : Nat) : List Tile → Option (List Tile) := fun ts =>
   match n with
   | 0 => some ts
@@ -73,7 +76,6 @@ partial def countArrangementsMemo : Record → Nat := fun record =>
     let cache ← getState
     match cache.find? {springs := springs, groups := groups} with
     | some cnt =>
-      dbg_trace "cache hit"
       return cnt
     | none =>
       match springs, groups with
@@ -83,6 +85,7 @@ partial def countArrangementsMemo : Record → Nat := fun record =>
         | .Dmgd :: _, [] => return 0
         | _ :: ss, [] =>
           let cnt ← helper {springs := ss, groups := groups}
+          let cache ← getState
           let cache := (cache.insert ⟨springs, groups⟩ cnt)
           setState cache
           return cnt
@@ -90,12 +93,14 @@ partial def countArrangementsMemo : Record → Nat := fun record =>
         | s :: ss, g :: gs => match s, g with
           | .Oper, 0 =>
             let cnt ← helper {springs := ss, groups := gs}
+            let cache ← getState
             let cache := (cache.insert ⟨springs, groups⟩ cnt)
             setState cache
             return cnt
 
           | .Oper, _ =>
             let cnt ← helper {springs := ss, groups := groups}
+            let cache ← getState
             let cache := (cache.insert ⟨springs, groups⟩ cnt)
             setState cache
             return cnt
@@ -115,18 +120,21 @@ partial def countArrangementsMemo : Record → Nat := fun record =>
 
             | some ss =>
               let cnt ← helper {springs := ss, groups := 0 :: gs}
+              let cache ← getState
               let cache := (cache.insert ⟨springs, groups⟩ cnt)
               setState cache
               return cnt
 
           | .Unwn, 0 =>
             let cnt ← helper {springs := ss, groups := gs}
+            let cache ← getState
             let cache := (cache.insert ⟨springs, groups⟩ cnt)
             setState cache
             return cnt
 
           | .Unwn, _ =>
             let oper ← helper {springs := ss, groups := groups}
+            let cache ← getState
             match tryFixN g springs with
               | none =>
                 let cache := (cache.insert ⟨springs, groups⟩ oper)
@@ -135,6 +143,7 @@ partial def countArrangementsMemo : Record → Nat := fun record =>
 
               | some ss =>
                 let dmgd ← helper {springs := ss, groups := 0 :: gs}
+                let cache ← getState
                 let cache := (cache.insert ⟨springs, groups⟩ (dmgd + oper))
                 setState cache
                 return dmgd + oper
@@ -164,20 +173,6 @@ def parseLines : List String → List Record
     let nums := (x.get! 1).splitOn ","
     let groups := List.map String.toNat! nums
     {springs := springs, groups := groups} :: (parseLines lns)
-
-def input := [
-  "???.### 1,1,3",
-  ".??..??...?##. 1,1,3",
-  "?#?#?#?#?#?#?#? 1,3,1,6",
-  "????.#...#... 4,1,1",
-  "????.######..#####. 1,6,5",
-  "?###???????? 3,2,1",
-]
-
-def data := parseLines input
--- #eval Util.sum 0 (List.map countArrangements (data.map extendInput))
-
-#eval List.map (countArrangementsMemo ∘ extendInput) data
 
 def runDay : List String → String := fun lns =>
   let data := parseLines lns
