@@ -78,3 +78,6 @@ def String.joinSep (sep : String) : List String → String
 | s :: [] => s
 | s :: ss =>
   s ++ sep ++ joinSep sep ss
+
+def List.flatMap {α : Type u} {β : Type v} (f : α → List β) (as : List α) : List β :=
+  List.foldl (fun acc a => acc ++ f a) [] as

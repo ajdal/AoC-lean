@@ -9,7 +9,7 @@ open Directory
 
 partial def dir2String (level : String :="") : Directory → String
   | file size name => s!"\n{level}- {name} (file, size={size})"
-  | directory name contents size => 
+  | directory name contents size =>
     s!"\n{level}- {name} (dir, size={size}) {contents.map (fun c => (dir2String (level++"  ") c) )}"
 
 instance : ToString Directory where
@@ -87,11 +87,6 @@ def fs2 := directory "/" [
     ]
   ]
 ]
-
-def fs3 := insertAt fs2 (directory "y" []) ["a", "e", "x"]
-
-#eval fs3
-
 instance : Inhabited Directory where
   default := Directory.directory "" []
 
@@ -105,13 +100,13 @@ partial def getSizes : Directory → Nat × Directory
 
 partial def sumSmaller : Directory → Nat
 | file _ _ => 0
-| directory _ contents size => 
+| directory _ contents size =>
   if size <= 100000 then
     contents.foldl (fun sum c => sum + sumSmaller c) size
   else
     contents.foldl (fun sum c => sum + sumSmaller c) 0
 
-partial def readLines (stream : IO.FS.Stream) : IO (List String) := do 
+partial def readLines (stream : IO.FS.Stream) : IO (List String) := do
   let line ← stream.getLine
   if line.length = 0 then
     return []
@@ -144,7 +139,7 @@ def parseInput : (List String) → Directory := fun lines =>
         | none => root
         | some newRoot => helper newRoot path lines
     | some fSize =>
-      match parts[1]? with 
+      match parts[1]? with
       | none => root
       | some fName =>
         match String.toNat? fSize with
