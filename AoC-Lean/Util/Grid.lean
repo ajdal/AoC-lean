@@ -9,6 +9,15 @@ def Grid (α : Type) : Type :=
 
 def Grid.mk {α : Type} (data : Array (Array α)) : Grid α := data
 
+def Grid.mk? {α : Type} (data : Array (Array α)) : Option (Grid α) :=
+  match data.get? 0 with
+  | none => some data
+  | some row0 =>
+    if Array.all data (fun row => row.size == row0.size) then
+      some data
+    else
+      none
+
 -- Creates Grid α of size m x n filled with default
 def Grid.fill (m n : Nat) (default : α) : Grid α :=
   mkArray m (mkArray n default)
@@ -24,6 +33,14 @@ instance [ToString α] : ToString (Grid α) where
 
 instance [ToString α] : Repr (Grid α) where
   reprPrec g _ := g.toString
+
+def Grid.numRows : Grid α → Nat := fun grid =>
+  Array.size grid
+
+def Grid.dimensions : Grid α → Nat × Nat := fun grid =>
+  match grid.get? 0 with
+  | none => (0,0)
+  | some row0 => (Array.size grid, row0.size)
 
 section Parser
 open Lean Elab Macro Tactic
