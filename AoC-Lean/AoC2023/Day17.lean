@@ -8,7 +8,7 @@ namespace Day17
 open Grid State Std
 
 def Pos := Nat × Nat
-deriving Repr, Inhabited, BEq, Hashable
+deriving Repr, Inhabited, BEq, Hashable, ToString
 
 def inLine (p1 p2 p3 p4 : Pos) : Bool :=
   (p1.fst == p2.fst && p2.fst == p3.fst && p3.fst == p4.fst) ||
@@ -16,13 +16,26 @@ def inLine (p1 p2 p3 p4 : Pos) : Bool :=
 
 #eval inLine (0, 3) (0, 2) (0, 1) (0, 0)
 
+def nInLine : List Pos → Nat
+  | [] => 0
+  | (y, x) :: poss =>
+    let rec count (x : Nat) : List Nat → Nat
+      | [] => 0
+      | x' :: xs => if x' == x then
+          (count x xs) + 1
+        else
+          0
+    let nRows := count y (poss.map Prod.fst)
+    let nCols := count x (poss.map Prod.snd)
+    (max nRows nCols) + 1
+
 def findNext (m n : Nat) (curr : Pos) (path : List Pos): List Pos :=
   let (i,j) := curr
   let nexts := [(i+1,j), (i-1,j),(i,j+1),(i,j-1)]
   nexts.filter  (fun p =>
     p.1 < m && p.2 < n && p != curr && !path.contains p &&
     (if path.length < 2 then true else
-      !inLine (path.get! 0) (path.get! 1) curr p
+      !inLine (path.get! 0) (path.get! 1) (path.get! 2) p
     )
   )
 
@@ -53,7 +66,8 @@ partial def findBestPath : Grid Nat → List Pos × Nat := fun grid =>
     else
       let path := curr :: path
       let nexts := findNext m n curr path
-      let nextBest ← nexts.mapM (fun next => fold (curr :: path) grid next)
+      dbg_trace s!"{curr} {nexts}"
+      let nextBest ← nexts.mapM (fun next => fold path grid next)
       let (lps, val) := findMin nextBest
       return (lps, val + currVal)
 
@@ -85,7 +99,7 @@ def input := [
 
 def input' := [
   "111111111111",
-  "999999999999"
+  "222222222222"
 ]
 
 #eval findBestPath (parseLines input')
