@@ -1,8 +1,9 @@
-namespace Range
+namespace Util
 
 structure Range where
   low : Int
   high : Int
+deriving Repr
 
 instance : ToString Range where
   toString := fun r => s!"({r.low}, {r.high})"
@@ -29,6 +30,8 @@ def Range.isEmpty : Range → Bool := fun r => r.high < r.low
 def Range.blob : Range → Range → Range := fun r1 r2 => ⟨ Int.min r1.low r2.low, Int.max r1.high r2.high ⟩
 
 def Range.contains : Range → Int → Bool := fun r k => r.low ≤ k && k ≤ r.high
+
+def Range.size : Range → Nat := fun ⟨low, high⟩ => (high - low).natAbs + 1
 
 def OpenSet : Type := List Range
 
@@ -111,4 +114,4 @@ def r5 : Range := ⟨ 1, 2 ⟩
 def o2 : OpenSet := [r4, r5]
 def o3 : OpenSet := ((o1.add r3).add r2)
 
-end Range
+end Util

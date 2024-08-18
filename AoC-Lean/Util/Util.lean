@@ -21,12 +21,6 @@ def runDay (day : List String → String) : IO Unit := do
   let lines ← readLines stdin
   stdout.putStrLn (day lines)
 
-/--
-  Sum the value of a list, with initial value `initial`
--/
-def sum {α : Type} [HAdd α α α] (initial : α) : List α → α :=
-  fun l => l.foldl (fun s n => s + n) initial
-
 def whileDigit (digits : List Char) : List Char → List Char × List Char :=
   fun s => match s with
   | [] => (digits.reverse, [])
@@ -81,3 +75,9 @@ def String.joinSep (sep : String) : List String → String
 
 def List.flatMap {α : Type u} {β : Type v} (f : α → List β) (as : List α) : List β :=
   List.foldl (fun acc a => acc ++ f a) [] as
+
+/--
+  Sum the value of a list, with initial value `initial`
+-/
+def List.sum {α : Type} [HAdd α α α] (initial : α) : List α → α :=
+  fun l => l.foldl (fun s n => s + n) initial
